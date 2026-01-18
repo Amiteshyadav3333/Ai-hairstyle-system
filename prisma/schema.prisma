@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  gender    String?
+  createdAt DateTime @default(now())
+  scans     Scan[]
+
+  @@map("users")
+}
+
+model Scan {
+  id         String   @id @default(cuid())
+  userId     String
+  faceShape  String
+  skinTone   String
+  hairType   String
+  beardStyle String?
+  timestamp  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  results    Result[]
+
+  @@map("scans")
+}
+
+model Result {
+  id           String @id @default(cuid())
+  scanId       String
+  hairstyleName String
+  imageUrl     String
+  overlayUrl   String?
+  score        Float
+  reason       String
+  scan         Scan   @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@map("results")
+}
+
+model Admin {
+  id       String @id @default(cuid())
+  email    String @unique
+  password String
+
+  @@map("admins")
+}
